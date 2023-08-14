@@ -27,9 +27,9 @@ data_party <-
   identity()
 
 # alternative to list_rbind():
-function(df) {
-  df |>
-    keep(\(x) !is.null(x)) |>
-    imap(\(d, name) mutate(d, year = name)) |>
-    reduce(rbind)
+list_rbind2 <- function(list, names_to) {
+  list |>
+    purrr::keep(\(x) !is.null(x)) |>
+    purrr::imap(\(d, name) dplyr::mutate(d, "{names_to}" := name)) |>
+    purrr::reduce(rbind)
 }
