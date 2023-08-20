@@ -76,3 +76,20 @@ diamonds |> sorted_bars(clarity)
 #' # example code
 #' diamonds |> sorted_bars(clarity)
 #'
+sorted_bars <- function(df, var) {
+  require(ggplot2)
+  require(dplyr)
+
+  plot_data <- df %>%
+    group_by({{ var }}) %>%
+    summarise(count = n()) %>%
+    arrange(desc(count))
+
+  ggplot(plot_data, aes(x = count, y = reorder({{ var }}, count))) +
+    geom_bar(stat = "identity") +
+    labs(x = "Count", y = var) +
+    theme_minimal()
+}
+
+# note: this chatGPT response 👆 gets you closer, but I would *not* recommend
+#  using `require()` in a function.
