@@ -1,5 +1,9 @@
 library("tidyverse")
 
+add <- function(x, y) {
+  x + y
+}
+
 ## Your turn: which of these functions are pure, which have or use side effects?
 x <- prod(1, 2, 3)
 
@@ -12,12 +16,19 @@ x <- sort(c("apple", "Banana", "candle"))
 
 ## Our turn:
 # look at `collate` setting in first section
-devtools::session_info()
+devtools::session_info(info = "platform")
 
 # this is the locale setting
-Sys.getlocale("LC_COLLATE")
+(temp <- Sys.getlocale("LC_COLLATE"))
 
 sort(c("apple", "Banana", "candle"))
+
+# change, then set back
+Sys.setlocale("LC_COLLATE", "C")
+
+sort(c("apple", "Banana", "candle"))
+
+Sys.setlocale("LC_COLLATE", temp)
 
 # set only within expression
 withr::with_locale(
@@ -35,6 +46,10 @@ c_sort <- function(...) {
 c_sort(c("apple", "Banana", "candle"))
 
 Sys.getlocale("LC_COLLATE")
+
+## What about dplyr?
+tibble(text = c("apple", "Banana", "candle")) |>
+  arrange(text)
 
 ## Your turn: modify testthat options
 library("testthat")

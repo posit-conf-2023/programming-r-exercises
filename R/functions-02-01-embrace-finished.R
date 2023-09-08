@@ -2,6 +2,15 @@ library("tidyverse")
 
 # Tidy evaluation
 
+## Embracing
+diamonds |>
+  ggplot(aes(x = carat)) +
+  geom_histogram(binwidth = 0.1)
+
+diamonds |>
+  ggplot(aes(x = carat)) +
+  geom_histogram(binwidth = 0.05)
+
 # use {{embracing}} to set the x aesthetic
 histogram <- function(df, var, binwidth = NULL) {
   df |>
@@ -28,6 +37,11 @@ histogram <- function(df, var, ..., binwidth = NULL) {
 histogram(starwars, height, binwidth = 5, fill = "steelblue")
 
 ## Using embracing for labels
+temp <- function(varname, value) {
+  rlang::englue("You chose varname: {{ varname }} and value: {value}")
+}
+
+temp(val, 0.4)
 
 # Include the variable-name and binwidth in the title
 histogram <- function(df, var, ..., binwidth = NULL) {
@@ -41,8 +55,8 @@ histogram <- function(df, var, ..., binwidth = NULL) {
     )
 }
 
-histogram(starwars, height, binwidth = 5, fill = "steelblue")
-histogram(starwars, height, fill = "steelblue")
+histogram(starwars, height, binwidth = 5)
+histogram(starwars, height) # "extra credit"
 
 ## Using embracing to reorder data
 
@@ -53,7 +67,7 @@ sorted_bars <- function(df, var) {
     geom_bar()
 }
 
-diamonds |> sorted_bars(clarity)
+sorted_bars(clarity)
 
 ## Extra
 
@@ -74,7 +88,7 @@ diamonds |> sorted_bars(clarity)
 #' @return ggplot2 object
 #' @examples
 #' # example code
-#' diamonds |> sorted_bars(clarity)
+#' sorted_bars(diamonds, clarity)
 #'
 sorted_bars <- function(df, var) {
   require(ggplot2)
