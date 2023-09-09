@@ -1,3 +1,4 @@
+library("conflicted")
 library("tidyverse")
 
 add <- function(x, y) {
@@ -33,7 +34,9 @@ Sys.setlocale("LC_COLLATE", temp)
 # set only within expression
 withr::with_locale(
   # set new locale to "C"
+  new = list(LC_COLLATE = "C"),
   # sort vector
+  sort(c("apple", "Banana", "candle"))
 )
 
 Sys.getlocale("LC_COLLATE")
@@ -41,6 +44,9 @@ Sys.getlocale("LC_COLLATE")
 # set only within scope
 c_sort <- function(...) {
   # use withr::local_locale() to set only within function block
+  withr::local_locale(list(LC_COLLATE = "C"))
+
+  sort(...)
 }
 
 c_sort(c("apple", "Banana", "candle"))

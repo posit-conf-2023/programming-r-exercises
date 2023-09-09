@@ -1,10 +1,10 @@
+library("conflicted")
 library("tidyverse")
 library("here")
 
-# write out files
+## Write out files
 
-# ?dplyr::group_nest
-# ?stringr::str_glue
+# ?dplyr::group_nest(), ?stringr::str_glue(), ?readr::write_csv
 
 # from diamonds, create tibble with columns: clarity, data, filename
 by_clarity_csv <-
@@ -13,8 +13,6 @@ by_clarity_csv <-
   # create column for filename
   identity()
 
-# ?readr::write_csv
-
 # using the data and filename, write out csv files
 walk2(
   by_clarity_csv$data,
@@ -22,10 +20,13 @@ walk2(
   \(data, filename) # write csv file to data/clarity directory
 )
 
-# write out plots
+## Write out plots
 
-carat_histogram <- function(df) {
-  ggplot(df, aes(x = carat)) + geom_histogram(binwidth = 0.1)
+# remember me?
+histogram <- function(df, var, ..., binwidth = NULL) {
+  df |>
+    ggplot(aes(x = {{var}})) +
+    geom_histogram(binwidth = binwidth, ...)
 }
 
 # from diamonds, create tibble with columns: clarity, data, plot, filename
@@ -40,10 +41,77 @@ by_clarity_plots <-
   identity()
 
 # ?ggplot2::ggsave
-
 # using the data and filename, write out plots to png files
 walk2(
   by_clarity_plot$filename,
   by_clarity_plot$plot,
   \(filename, plot) # write plot file to data/clarity directory
 )
+
+## dplyr using purrr (if time permits)
+
+dpurrr_filter <- function(df, predicate) {
+  df |>
+    as.list() |>
+    purrr::list_transpose(simplify = FALSE) |>
+    purrr::keep(predicate) |>
+    purrr::list_transpose() |>
+    as.data.frame()
+}
+
+dpurrr_filter(mtcars, \(d) d$gear == 3) |> head()
+
+dpurrr_mutate <- function(df, mapper) {
+  df |>
+    as.list() |>
+    purrr::list_transpose(simplify = FALSE) |>
+    purrr::map(\(d) c(d, mapper(d))) |>
+    purrr::list_transpose() |>
+    as.data.frame()
+}
+
+mtcars |>
+  dpurrr_mutate(\(d) list(wt_kg = d$wt * 1000 / 2.2)) |>
+  head()
+
+dpurrr_summarise <- function(df, reducer, .init) {
+  df |>
+    as.list() |>
+    purrr::list_transpose(simplify = FALSE) |>
+    purrr::reduce(reducer, .init = .init) |>
+    as.data.frame()
+}
+
+mtcars |>
+  dpurrr_summarise(
+    reducer = \(acc, val) list(
+      wt_min = min(acc$wt_min, val$wt),
+      wt_max = max(acc$wt_max, val$wt)
+    ),
+    .init = list(wt_min = Inf, wt_max = -Inf)
+  )
+
+## With grouping
+
+ireduce <- function(x, reducer, .init) {
+  purrr::reduce2(x, names(x), reducer, .init = .init)
+}
+
+summariser <- purrr::partial(
+  dpurrr_summarise,
+  reducer = \(acc, val) list(
+    wt_min = min(acc$wt_min, val$wt),
+    wt_max = max(acc$wt_max, val$wt)
+  ),
+  .init = list(wt_min = Inf, wt_max = -Inf)
+)
+
+mtcars |>
+  split(mtcars$gear) |>
+  purrr::map(summariser) |>
+  ireduce(
+    reducer = \(acc, x, y) rbind(acc, c(list(gear = y), x)),
+    .init = data.frame()
+  )
+
+
