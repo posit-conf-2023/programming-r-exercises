@@ -4,20 +4,20 @@ library("here")
 
 ## Write out files
 
-# ?dplyr::group_nest(), ?stringr::str_glue(), ?readr::write_csv
-
+# ?dplyr::group_nest(), ?stringr::str_glue()
 # from diamonds, create tibble with columns: clarity, data, filename
 by_clarity_csv <-
   diamonds |>
   # nest by clarity
   # create column for filename
-  identity()
+  print()
 
+# ?readr::write_csv()
 # using the data and filename, write out csv files
 walk2(
   by_clarity_csv$data,
   by_clarity_csv$filename,
-  \(data, filename) # write csv file to data/clarity directory
+  \(data, filename) NULL # replace with actual code
 )
 
 ## Write out plots
@@ -33,19 +33,25 @@ histogram <- function(df, var, ..., binwidth = NULL) {
 by_clarity_plots <-
   diamonds |>
   # nest by clarity
+  group_nest(clarity) |>
   # create columns for filename, plot
   mutate(
-    filename = str_glue(),
-    plot = map()
+    filename = str_glue("clarity-{clarity}.png")#,
+    #plot = map()
   ) |>
-  identity()
+  print()
 
 # ?ggplot2::ggsave
+ggsave_local <- function(filename, plot) {
+
+}
+
 # using the data and filename, write out plots to png files
 walk2(
   by_clarity_plot$filename,
   by_clarity_plot$plot,
-  \(filename, plot) # write plot file to data/clarity directory
+  # write plot file to data/clarity directory
+  ggsave_local
 )
 
 ## dplyr using purrr (if time permits)
