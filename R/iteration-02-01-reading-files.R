@@ -8,25 +8,32 @@ library("fs")
 here("data/file.csv")
 
 ## Our turn
-data1952 <- readxl::read_excel(here("data/gapminder/1952.xlsx"))
-data1957 <- readxl::read_excel(here("data/gapminder/1957.xlsx"))
-data1962 <- readxl::read_excel(here("data/gapminder/1952.xlsx"))
-data1967 <- readxl::read_excel(here("data/gapminder/1967.xlsx"))
+data1952 <- read_excel(here("data/gapminder/1952.xlsx"))
+data1957 <- read_excel(here("data/gapminder/1957.xlsx"))
+data1962 <- read_excel(here("data/gapminder/1952.xlsx"))
+data1967 <- read_excel(here("data/gapminder/1967.xlsx"))
 
 data_manual <- bind_rows(data1952, data1957, data1962, data1967)
 
 # What problems do you see so far?
 # (I see two "real" problems, one philosophical problem)
 
-# ?set_names(), ?as.list()
+# ?basename(), ?str_extract()
+get_year <- function(x) {
+
+}
+
+get_year("taylor/swift/1989.txt")
+
+# ?as.list(), ?set_names()
 paths <-
   # get the filepaths from the directory
   fs::dir_ls(here("data/gapminder")) |>
-  # extract the year as names
   # convert to list
-  identity()
+  # extract the year as names
+  print()
 
-# ?list_rbind(), ?parse_number
+# ?read_excel(), ?list_rbind(), ?parse_number()
 data <-
   paths |>
   # read each file from excel, into data frame
@@ -34,25 +41,44 @@ data <-
   # set list-names as column `year`
   # bind into single data-frame
   # convert year to number
-  identity()
+  print()
 
 paths_party <-
   # get the filepaths from the directory
   fs::dir_ls(here("data/gapminder_party")) |>
-  # extract the year as names
   # convert to list
-  identity()
+  as.list() |>
+  # extract the year as names
+  set_names(get_year) |>
+  print()
+
+# possibly
+poss_read_csv <- possibly(read_csv, otherwise = NULL, quiet = FALSE)
+
+poss_read_csv("not/a/file.csv")
+
+poss_read_csv(I("a, b\n 1, 2"), col_types = "dd")
 
 # modify read-function to return NULL, rather than throw error
+possibly_read_excel <- possibly() # we do the rest
 
 data_party <-
+  data_party <-
   paths_party |>
-  # read each file from excel, into data frame
+  # read each file from excel
+  map(read_excel) |>
   # keep only non-null elements
   # set list-names as column `year`
   # bind into single data-frame
+  list_rbind(names_to = "year") |>
   # convert year to number
-  identity()
+  mutate(year = parse_number(year)) |>
+  print()
+
+# intermediate step - see which one failed
+paths_party |>
+  map(poss_read_excel) |>
+  keep(is.null)
 
 identical(data_party, data)
 
