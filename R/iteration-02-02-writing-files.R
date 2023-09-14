@@ -1,4 +1,5 @@
 library("conflicted")
+library("palmerpenguins")
 library("tidyverse")
 library("here")
 
@@ -53,6 +54,12 @@ walk2(
   # write plot file to data/clarity directory
   ggsave_local
 )
+
+## Functions as arguments
+
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  scale_color_discrete(labels = tolower) # tolower is a function
 
 ## dplyr using purrr (if time permits)
 
