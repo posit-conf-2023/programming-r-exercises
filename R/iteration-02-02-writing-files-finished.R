@@ -1,10 +1,11 @@
 library("conflicted")
+library("palmerpenguins")
 library("tidyverse")
 library("here")
 
 ## Write out files
 
-# ?dplyr::group_nest(), ?stringr::str_glue(), ?readr::write_csv
+# ?dplyr::group_nest(), ?stringr::str_glue(), ?readr::write_csv()
 
 # from diamonds, create tibble with columns: clarity, data, filename
 by_clarity_csv <-
@@ -13,7 +14,7 @@ by_clarity_csv <-
   group_nest(clarity) |>
   # create column for filename
   mutate(filename = str_glue("clarity-{clarity}.csv")) |>
-  identity()
+  print()
 
 # using the data and filename, write out csv files
 walk2(
@@ -40,19 +41,33 @@ by_clarity_plot <-
   # create columns for plot, filename
   mutate(
     filename = str_glue("clarity-{clarity}.png"),
-    plot = map(data, histogram, carat, fill = "steelblue", binwidth = 0.1),
+    plot = map(data, histogram, carat),
   ) |>
-  identity()
+  print()
 
 # ?ggplot2::ggsave
 # using the data and filename, write out plots to png files
+ggsave_local <- function(filename, plot) {
+  ggsave(
+    here("data", "clarity", filename),
+    plot,
+    width = 6,
+    height = 6
+  )
+}
+
 walk2(
-  by_clarity_plot$plot,
   by_clarity_plot$filename,
+  by_clarity_plot$plot,
   # write plot file to data/clarity directory
-  \(plot, filename)
-    ggsave(here("data", "clarity", filename), plot, width = 6, height = 6)
+  ggsave_local
 )
+
+## Functions as arguments
+
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  scale_color_discrete(labels = tolower) # tolower is a function
 
 ## dplyr using purrr (if time permits)
 
