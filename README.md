@@ -1,6 +1,6 @@
 # From R User to R Programmer - Exercises
 
-This repo contains the exercises for the posit::conf(2023) workshop [From R User to R Programmer](https://posit-conf-2023.github.io/programming-r/).
+This repo contains the exercises for the posit::conf(2024) workshop [From R User to R Programmer](https://posit-conf-2024.github.io/programming-r/).
 
 ## Installation
 
@@ -13,7 +13,7 @@ install.packages(c("tidyverse", "devtools", "here", "palmerpenguins"))
 To install the exercises:
 
 ```r
-usethis::use_course("posit-conf-2023/programming-r-exercises")
+usethis::use_course("posit-conf-2024/programming-r-exercises")
 ```
 
 ## Notes
